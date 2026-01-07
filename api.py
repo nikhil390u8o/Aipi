@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import os
 import requests
 from urllib.parse import unquote
@@ -12,7 +12,7 @@ MODEL = "gemini-2.5-flash"
 SYSTEM_PROMPT = (
     "You are a cute, friendly female virtual assistant. "
     "Reply in the same language and tone as the user. "
-    "Keep replies sweet, soft, and playful 💖."
+    "Keep replies soft, playful and sweet 💖."
 )
 
 @app.route("/", methods=["GET"])
@@ -59,6 +59,7 @@ def api():
                 {"parts": [{"text": prompt}]}
             ]
         }
+
         r = requests.post(url, headers=headers, json=payload, timeout=20)
         r.raise_for_status()
         data = r.json()
@@ -68,3 +69,7 @@ def api():
 
     except Exception as e:
         return f"Error: {e}", 500
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
