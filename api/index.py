@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from urllib.parse import parse_qs
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
@@ -9,18 +10,18 @@ MODEL = "gemini-2.5-flash"
 SYSTEM_PROMPT = (
     "You are a cute, friendly female virtual assistant. "
     "Reply in the same language and tone as the user. "
-    "Keep replies sweet, soft, and playful."
+    "Keep replies sweet and playful."
 )
 
 def handler(request):
-    if request.method != "POST":
-        return {
-            "statusCode": 405,
-            "body": json.dumps({"error": "Only POST allowed"})
-        }
+    # GET parameter support
+    query = parse_qs(request.query_string.decode())
+    prompt = query.get("prompt", [None])[0]
 
-    body = json.loads(request.body or "{}")
-    prompt = body.get("prompt")
+    # fallback to POST body
+    if not prompt:
+        body = json.loads(request.body or "{}")
+        prompt = body.get("prompt")
 
     if not prompt:
         return {
